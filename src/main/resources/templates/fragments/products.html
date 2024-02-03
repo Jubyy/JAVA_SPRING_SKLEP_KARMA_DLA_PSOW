@@ -1,0 +1,36 @@
+<div class="container mt-5">
+    <a th:href="@{/create}" class="btn btn-primary mb-3">Dodaj nowy produkt</a>
+    <div class="table-container">
+        <table class="table table-bordered">
+            <thead class="thead-light">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Brand</th>
+                <th>Description</th>
+                <th>Image URL</th>
+                <th>Stock</th>
+                <th>Price</th>
+                <th>Weight</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="product : ${products}">
+                <td th:text="${product.id}"></td>
+                <td th:text="${product.name}"></td>
+                <td th:text="${product.brand}"></td>
+                <td th:text="${product.description}"></td>
+                <td th:text="${product.img_url}"></td>
+                <td th:text="${product.stock}"></td>
+                <td th:text="${product.price}"></td>
+                <td th:text="${product.weight}"></td>
+                <td>
+                    <a th:href="@{/edit/{id}(id=${product.id})}" class="btn btn-info btn-sm">Edytuj</a>
+                    <a th:href="@{/delete/{id}(id=${product.id})}" class="btn btn-danger btn-sm" onclick="return confirm('Czy na pewno chcesz usunąć ten produkt?');">Usuń</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
