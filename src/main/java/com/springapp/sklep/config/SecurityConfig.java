@@ -1,46 +1,66 @@
-import org.springframework.beans.factory.annotation.Autowired;
+package com.springapp.sklep.config;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig {
 
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-                .inMemoryAuthentication()
-                .withUser("admin").password("admin").roles("ADMIN")
-                .and()
-                .withUser("user").password("user").roles("USER");
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        HttpSecurity admin = http
+                .authorizeRequests(authorize -> authorize
+                        .requestMatchers("/products/**").hasRole("ADMIN")
+                        .requestMatchers("/create").hasRole("ADMIN")
+                        .requestMatchers("/edit/**").hasRole("ADMIN")
+                        .requestMatchers("/delete/**").hasRole("ADMIN")
+                        .requestMatchers("/", "/kontakt","**","/submit","/thanks").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .formLogin(form -> form
+                        .loginPage("/login").permitAll()
+
+                )
+                .logout(withDefaults())
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .accessDeniedPage("/access-denied")
+                )
+                .csrf().disable();
+        return http.build();
     }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http
-                .authorizeUrls()
-                .antMatchers("/products/**").hasRole("ADMIN")
-                .antMatchers("/createProduct").hasAnyRole("ADMIN", "MANAGER")
-                .anyRequest().authenticated()
-                .and()
-                .formLogin().loginPage("/login").permitAll()
-                .and()
-                .logout().permitAll()
-                .and()
-                .exceptionHandling().accessDeniedPage("/access-denied")
-                .and()
-                .csrf().disable();
+    @Bean
+    public UserDetailsService userDetailsService() {
+        UserDetails user = User.builder()
+                .username("user")
+                .password(passwordEncoder().encode("user"))
+                .roles("USER")
+                .build();
+
+        UserDetails admin = User.builder()
+                .username("admin")
+                .password(passwordEncoder().encode("admin"))
+                .roles("ADMIN")
+                .build();
+
+        return new InMemoryUserDetailsManager(user, admin);
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // Użyj odpowiedniego kodowania dostępnego w wersji Spring Security 3.1.2
-        // Na przykład, można użyć implementacji BCryptPasswordEncoder.
-        return new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder();
     }
 }

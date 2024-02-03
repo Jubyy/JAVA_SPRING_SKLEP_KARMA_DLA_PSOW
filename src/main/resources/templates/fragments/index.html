@@ -39,33 +39,45 @@
 
 
 
-                    <div th:each="product : ${products}" class="col mb-5">
+                    <div th:each="product : ${products}" class="col mb-4"> <!-- Zmniejsz odstęp między kartami -->
+
                         <div class="card h-100">
-                            <!-- Obraz produktu -->
-                            <img class="card-img-top" th:src="${product.img_url}" alt="Product Image" />
+                            <a th:href="@{/product/{id}(id=${product.id})}" class="product-link">
+                                <!-- Obraz produktu z marginesem od góry -->
+                                <img class="card-img-top img-fluid mt-3" th:src="${product.img_url}" alt="Product Image" style="height: 200px; object-fit: cover;">
+                            </a>
                             <!-- Szczegóły produktu -->
                             <div class="card-body p-4">
                                 <div class="text-center">
                                     <!-- Nazwa produktu -->
                                     <h5 class="fw-bolder" th:text="${product.name}"></h5>
-                                    <!-- Oceny produktu -->
-                                    <div class="d-flex justify-content-center small text-warning mb-2">
-                                        <div class="bi-star-fill"></div>
-                                        <div class="bi-star-fill"></div>
-                                        <div class="bi-star-fill"></div>
-                                        <div class="bi-star-fill"></div>
-                                        <div class="bi-star-fill"></div>
+
+                                    <!-- Marka i Waga -->
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6>Marka:</h6>
+                                            <h6 class="fw-bolder" th:text="${product.brand}"></h6>
+                                        </div>
+                                        <div>
+                                            <h6>Waga:</h6>
+                                            <h6 class="fw-bolder" th:text="${product.weight}"></h6>
+                                        </div>
                                     </div>
+
                                     <!-- Cena produktu -->
-                                    <span th:text="'$' + ${product.price}"></span>
+                                    <h2><span th:text="${product.price} + 'zł'"></span></h2>
                                 </div>
                             </div>
                             <!-- Działania produktu -->
                             <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                                <div class="text-center"><a class="btn btn-outline-dark mt-auto" th:href="@{'/addToCart/' + ${product.id}}">Dodaj do koszyka</a></div>
+                                <div class="text-center">
+                                    <a class="btn btn-outline-dark mt-auto" th:href="@{/checkout/{id}(id=${product.id})}">Kup Teraz</a>
+                                </div>
                             </div>
                         </div>
+
                     </div>
+
 
 
                 </div>
